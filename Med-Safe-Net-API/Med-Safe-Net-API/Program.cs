@@ -3,6 +3,8 @@ using API.Data;
 using API.Interfaces;
 using API.Repositories;
 using API.Services;
+using Med_Safe_Net_API.Data.Seed;
+using Med_Safe_Net_API.Helpers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -49,6 +51,7 @@ builder.Services.AddScoped<IHeartRateService, HeartRateService>();
 
 builder.Services.AddScoped<ISuddenMovementRepository, SuddenMovementRepository>();
 builder.Services.AddScoped<ISuddenMovementService, SuddenMovementService>();
+
 
 
 builder.Services.AddSwaggerGen(c =>

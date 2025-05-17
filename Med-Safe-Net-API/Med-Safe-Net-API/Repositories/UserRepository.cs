@@ -10,7 +10,7 @@ public class UserRepository(DataContext _context) : IUserRepository
 {
     public async Task<AppUser> GetUserByUserIdAsync(int userid)
     {
-       var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userid) ?? throw new Exception("User not found");
+       var user = await _context.Users.Include(e => e.UserRoles).FirstOrDefaultAsync(u => u.Id == userid) ?? throw new Exception("User not found");
         return user;
     }
 

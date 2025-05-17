@@ -1,4 +1,6 @@
+using Med_Safe_Net_API.Entities;
 using System;
+using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace API.Entities;
@@ -18,5 +20,6 @@ public class AppUser
     public ICollection<HeartRate>? HeartRates { get; set; }
     public ICollection<SuddenMovement>? SuddenMovements { get; set; }
     public ICollection<HighHeartRate>? HighHeartRates { get; set; }
+    public ICollection<UserRole>? UserRoles { get; set; } = new Collection<UserRole>();
 
 }

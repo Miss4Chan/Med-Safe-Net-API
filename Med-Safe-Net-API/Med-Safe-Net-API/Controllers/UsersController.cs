@@ -14,7 +14,7 @@ public class UsersController(DataContext context) : BaseApiController
     [HttpGet]
     public async Task<ActionResult<IEnumerable<AppUser>>> GetUsers()
     {
-        var users = await context.Users.ToListAsync();
+        var users = await context.Users.Include(e => e.UserRoles).ToListAsync();
         return users;
     }
 
