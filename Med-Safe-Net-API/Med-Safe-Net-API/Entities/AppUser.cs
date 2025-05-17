@@ -9,6 +9,7 @@ public class AppUser
 {
     [Key]
     public int Id { get; set; }
+    public Guid? UserCode { get; set; } = Guid.NewGuid();
     [Required]
     public required string Username { get; set; }
     public required byte[] PasswordHash {get;set;}
@@ -21,5 +22,6 @@ public class AppUser
     public ICollection<SuddenMovement>? SuddenMovements { get; set; }
     public ICollection<HighHeartRate>? HighHeartRates { get; set; }
     public ICollection<UserRole>? UserRoles { get; set; } = new Collection<UserRole>();
+    public ICollection<UserLink>? UserLinks { get; set; } = new Collection<UserLink>();
 
 }

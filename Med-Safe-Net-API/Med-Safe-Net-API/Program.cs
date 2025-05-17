@@ -3,8 +3,6 @@ using API.Data;
 using API.Interfaces;
 using API.Repositories;
 using API.Services;
-using Med_Safe_Net_API.Data.Seed;
-using Med_Safe_Net_API.Helpers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -120,8 +118,6 @@ catch (Exception ex)
     var logger = services.GetService<ILogger<Program>>();
     logger.LogError(ex, "An error occured during Migration");
 }
-
-
 
 
 app.Run();
