@@ -50,7 +50,6 @@ builder.Services.AddScoped<IHeartRateService, HeartRateService>();
 builder.Services.AddScoped<ISuddenMovementRepository, SuddenMovementRepository>();
 builder.Services.AddScoped<ISuddenMovementService, SuddenMovementService>();
 
-builder.WebHost.UseUrls("http://0.0.0.0:5008");
 
 builder.Services.AddSwaggerGen(c =>
 {
@@ -86,8 +85,8 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
+//if (app.Environment.IsDevelopment())
+//{
     app.UseOpenApi();
     app.UseSwagger(options =>
     {
@@ -97,7 +96,7 @@ if (app.Environment.IsDevelopment())
     {
         c.SwaggerEndpoint("/swagger/v1.0/swagger.json", "Test App");
     });
-}
+//}
 
 app.UseCors("AllowExternalSources");
 app.UseHttpsRedirection();
@@ -105,6 +104,19 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+using var scope = app.Services.CreateScope();
+var services = scope.ServiceProvider;
+try
+{
+    var context = services.GetRequiredService<DataContext>();
+    await context.Database.MigrateAsync();
+}
+catch (Exception ex)
+{
+    var logger = services.GetService<ILogger<Program>>();
+    logger.LogError(ex, "An error occured during Migration");
+}
 
 
 
