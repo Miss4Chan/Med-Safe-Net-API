@@ -10,6 +10,7 @@ namespace Med_Safe_Net_API.Data.Seed
     {
         public static void SeedData(ModelBuilder modelBuilder)
         {
+            Console.WriteLine("Starting DataSeed");
             modelBuilder.Entity<AppRole>().HasData(
                 new AppRole
                 {

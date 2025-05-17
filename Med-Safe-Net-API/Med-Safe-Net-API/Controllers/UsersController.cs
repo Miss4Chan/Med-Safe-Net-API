@@ -22,7 +22,7 @@ public class UsersController(DataContext context) : BaseApiController
             .Include(e => e.UserRoles)
             .Include(e => e.UserLinks)
             .ToListAsync();
-        return users;
+        return Ok(users);
     }
 
     [Authorize]
@@ -31,7 +31,7 @@ public class UsersController(DataContext context) : BaseApiController
     {
         var user = await context.Users.FindAsync(id);
         if (user==null) return NotFound();
-        return user;
+        return Ok(user);
     }
 
     [Authorize(Roles = $"{nameof(AppRoleType.Administrator)},{nameof(AppRoleType.Caregiver)}")]

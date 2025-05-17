@@ -54,7 +54,7 @@ builder.Services.AddScoped<ISuddenMovementService, SuddenMovementService>();
 
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1.0", new OpenApiInfo { Title = "Elder Care API", Version = "v1.0" });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Elder Care API", Version = "v1" });
 
 
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
@@ -95,11 +95,17 @@ var app = builder.Build();
     });
     app.UseSwaggerUI(c =>
     {
-        c.SwaggerEndpoint("/swagger/v1.0/swagger.json", "Test App");
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Test App");
     });
 //}
 
-app.UseCors("AllowExternalSources");
+app.UseCors(
+        b => b.AllowAnyHeader().AllowAnyMethod()
+               .AllowCredentials()
+               .WithOrigins(
+                    builder.Configuration.GetSection("AllowedOrigins").Get<string[]>() ?? new string[] { "https://localhost:4200" }
+               )
+    );
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
