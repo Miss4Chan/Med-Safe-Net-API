@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { ApiClient } from './services/apiClient';
-import { lastValueFrom } from 'rxjs';
 import { JsonPipe } from '@angular/common';
+import { AccountService } from './services/account.service';
+import { UserDto } from './services/apiClient';
 
 @Component({
   selector: 'app-root',
@@ -16,11 +16,15 @@ import { JsonPipe } from '@angular/common';
 })
 export class AppComponent implements OnInit{
   result:any = "Does not work";
-  constructor(private apiClient: ApiClient){
+  constructor(private accountService: AccountService){
   }
 
   async ngOnInit(): Promise<void> {
-    this.result = await lastValueFrom(this.apiClient.usersAll());
+    const user = localStorage.getItem('user');
+    if(user){
+      const userDto = new UserDto(JSON.parse(user));
+      this.accountService.currentUser.set(userDto);
+    }
   }
 
 
