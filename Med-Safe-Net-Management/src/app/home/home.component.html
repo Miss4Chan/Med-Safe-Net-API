@@ -1,1 +1,27 @@
-<p>home works!</p>
+<header class="menu-bar">
+  <div class="menu-left">
+    <h1>Dashboard</h1>
+  </div>
+  <div class="menu-right">
+    <button (click)="logout()" class="logout-btn">Logout</button>
+  </div>
+</header>
+
+<nav class="tabs">
+  <a
+    routerLink="/patients"
+    routerLinkActive="active-tab"
+    [routerLinkActiveOptions]="{ exact: true }"
+    >Get Patients</a
+  >
+  <a
+    routerLink="/create-patient"
+    routerLinkActive="active-tab"
+    [routerLinkActiveOptions]="{ exact: true }"
+    >Create Patient</a
+  >
+</nav>
+
+<section class="tab-content">
+  <router-outlet></router-outlet>
+</section>

@@ -1,0 +1,70 @@
+<div class="form-wrapper">
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" novalidate>
+        <h2>Register Patient</h2>
+
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input id="username" type="text" formControlName="username" />
+            @if(registerForm.controls['username'].touched && registerForm.controls['username'].invalid){
+
+                <div class="error">
+                    Username is required.
+                </div>
+            }
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input id="password" type="password" formControlName="password" />
+            @if(registerForm.controls['password'].touched && registerForm.controls['password'].invalid){
+            <div class="error">
+                Password is required.
+            </div>
+            }
+        </div>
+
+        <div class="form-group">
+            <label for="dateOfBirth">Date of Birth</label>
+            <input id="dateOfBirth" type="date" formControlName="dateOfBirth" />
+            @if(registerForm.controls['dateOfBirth'].touched && registerForm.controls['dateOfBirth'].invalid){
+            <div class="error">
+                Date of birth is required.
+            </div>
+            }
+        </div>
+
+        <div class="form-group">
+            <label for="firstName">First Name</label>
+            <input id="firstName" type="text" formControlName="firstName" />
+            @if(registerForm.controls['firstName'].touched && registerForm.controls['firstName'].invalid){
+            <div class="error">
+                First name is required.
+            </div>
+            }
+        </div>
+
+        <div class="form-group">
+            <label for="lastName">Last Name</label>
+            <input id="lastName" type="text" formControlName="lastName" />
+            @if(registerForm.controls['lastName'].touched && registerForm.controls['lastName'].invalid){
+
+            <div class="error">
+                Last name is required.
+            </div>
+            }
+        </div>
+
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input id="email" type="email" formControlName="email" />
+            @if(registerForm.controls['email'].touched && registerForm.controls['email'].invalid){
+
+            <div class="error">
+                Valid email is required.
+            </div>
+            }
+        </div>
+
+        <button type="submit">Register</button>
+    </form>
+</div>

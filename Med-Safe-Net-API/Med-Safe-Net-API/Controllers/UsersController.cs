@@ -29,7 +29,12 @@ public class UsersController(DataContext context) : BaseApiController
     [HttpGet("{id:int}")]
     public async Task<ActionResult<AppUser>> GetUser(int id)
     {
-        var user = await context.Users.FindAsync(id);
+        var user = await context.Users
+            .Include(u => u.HighHeartRates)
+            .Include(u => u.SuddenMovements)
+            .Include(u => u.HeartRates
+                .Where(hr => hr.Timestamp > DateTime.UtcNow.AddHours(-2)))
+            .FirstOrDefaultAsync(e => e.Id == id);
         if (user==null) return NotFound();
         return Ok(user);
     }
@@ -66,6 +71,34 @@ public class UsersController(DataContext context) : BaseApiController
             UserRoles = patient.UserRoles,
             UserLinks = patient.UserLinks
         });
+
+    }
+
+    [Authorize(Roles = $"{nameof(AppRoleType.Administrator)},{nameof(AppRoleType.Caregiver)}")]
+    [HttpGet("get-patients")]
+    public async Task<ActionResult<IEnumerable<PatientDto>>> GetMyPatients()
+    {
+        var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+
+        var patients = await context.Users.Include(u => u.UserLinks)
+            .Where(u => context.UserLinks.Where(p => p.PatientId == u.Id)
+            .Any() && context.UserLinks.Where(p => p.CareGiverId == userId)
+            .Any()).ToListAsync();
+
+        List<PatientDto> patientDtos = patients.Select(patient => new PatientDto
+        {
+            Id = patient.Id,
+            UserCode = patient.UserCode,
+            Username = patient.Username,
+            DateOfBirth = patient.DateOfBirth,
+            FirstName = patient.FirstName,
+            LastName = patient.LastName,
+            Email = patient.Email,
+            UserRoles = patient.UserRoles,
+            UserLinks = patient.UserLinks
+        }).ToList();
+
+        return Ok(patientDtos);
 
     }
 }
