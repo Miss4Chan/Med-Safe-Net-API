@@ -170,6 +170,49 @@ namespace Med_Safe_Net_API.Data.Seed
                     PatientId = patient2.Id
                 }
              );
+
+            var userseedId = -4;
+            var startTime = DateTime.UtcNow.Date.AddHours(-8); 
+
+            var heartRates = new List<HeartRate>();
+            var highHeartRateTime = startTime.AddMinutes(2); 
+            var suddenMovementTime = startTime.AddMinutes(3);
+
+            for (int i = 1; i < 20; i++)
+            {
+                var timestamp = startTime.AddSeconds(i * 15);
+                var measurement = 70 + (i % 3); 
+
+                if (timestamp == highHeartRateTime)
+                    measurement = 120;
+
+                heartRates.Add(new HeartRate
+                {
+                    HeartRateId = i * -1,
+                    UserId = userseedId,
+                    Timestamp = timestamp,
+                    Measurement = measurement
+                });
+            }
+
+            modelBuilder.Entity<HeartRate>().HasData(heartRates);
+
+            modelBuilder.Entity<HighHeartRate>().HasData(new HighHeartRate
+            {
+                HighHeartRateId = 1,
+                UserId = userseedId,
+                Measurement = 120,
+                Timestamp = highHeartRateTime,
+                Confirm = false
+            });
+
+            modelBuilder.Entity<SuddenMovement>().HasData(new SuddenMovement
+            {
+                MovementId = 1,
+                UserId = userseedId,
+                Timestamp = suddenMovementTime,
+                Confirm = false
+            });
         }
     }
 }

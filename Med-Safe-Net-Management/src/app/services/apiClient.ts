@@ -580,6 +580,61 @@ export class ApiClient {
     }
 
     /**
+     * @return OK
+     */
+    patientInfo(id: number): Observable<PatientInfoDto> {
+        let url_ = this.baseUrl + "/api/Users/patient-info/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            withCredentials: true,
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processPatientInfo(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processPatientInfo(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<PatientInfoDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<PatientInfoDto>;
+        }));
+    }
+
+    protected processPatientInfo(response: HttpResponseBase): Observable<PatientInfoDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PatientInfoDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
      * @param userCode (optional) 
      * @return OK
      */
@@ -833,7 +888,6 @@ export class HeartRate implements IHeartRate {
     userId?: number | undefined;
     timestamp?: Date | undefined;
     measurement?: number | undefined;
-    user!: AppUser;
 
     constructor(data?: IHeartRate) {
         if (data) {
@@ -841,9 +895,6 @@ export class HeartRate implements IHeartRate {
                 if (data.hasOwnProperty(property))
                     (<any>this)[property] = (<any>data)[property];
             }
-        }
-        if (!data) {
-            this.user = new AppUser();
         }
     }
 
@@ -853,7 +904,6 @@ export class HeartRate implements IHeartRate {
             this.userId = _data["userId"];
             this.timestamp = _data["timestamp"] ? new Date(_data["timestamp"].toString()) : <any>undefined;
             this.measurement = _data["measurement"];
-            this.user = _data["user"] ? AppUser.fromJS(_data["user"]) : new AppUser();
         }
     }
 
@@ -870,7 +920,6 @@ export class HeartRate implements IHeartRate {
         data["userId"] = this.userId;
         data["timestamp"] = this.timestamp ? this.timestamp.toISOString() : <any>undefined;
         data["measurement"] = this.measurement;
-        data["user"] = this.user ? this.user.toJSON() : <any>undefined;
         return data;
     }
 }
@@ -880,7 +929,6 @@ export interface IHeartRate {
     userId?: number | undefined;
     timestamp?: Date | undefined;
     measurement?: number | undefined;
-    user: AppUser;
 }
 
 export class HeartRateDto implements IHeartRateDto {
@@ -930,7 +978,6 @@ export class HighHeartRate implements IHighHeartRate {
     timestamp?: Date | undefined;
     confirm?: boolean | undefined;
     timeOfConfirmation?: Date | undefined;
-    user!: AppUser;
 
     constructor(data?: IHighHeartRate) {
         if (data) {
@@ -938,9 +985,6 @@ export class HighHeartRate implements IHighHeartRate {
                 if (data.hasOwnProperty(property))
                     (<any>this)[property] = (<any>data)[property];
             }
-        }
-        if (!data) {
-            this.user = new AppUser();
         }
     }
 
@@ -952,7 +996,6 @@ export class HighHeartRate implements IHighHeartRate {
             this.timestamp = _data["timestamp"] ? new Date(_data["timestamp"].toString()) : <any>undefined;
             this.confirm = _data["confirm"];
             this.timeOfConfirmation = _data["timeOfConfirmation"] ? new Date(_data["timeOfConfirmation"].toString()) : <any>undefined;
-            this.user = _data["user"] ? AppUser.fromJS(_data["user"]) : new AppUser();
         }
     }
 
@@ -971,7 +1014,6 @@ export class HighHeartRate implements IHighHeartRate {
         data["timestamp"] = this.timestamp ? this.timestamp.toISOString() : <any>undefined;
         data["confirm"] = this.confirm;
         data["timeOfConfirmation"] = this.timeOfConfirmation ? this.timeOfConfirmation.toISOString() : <any>undefined;
-        data["user"] = this.user ? this.user.toJSON() : <any>undefined;
         return data;
     }
 }
@@ -983,7 +1025,6 @@ export interface IHighHeartRate {
     timestamp?: Date | undefined;
     confirm?: boolean | undefined;
     timeOfConfirmation?: Date | undefined;
-    user: AppUser;
 }
 
 export class HighHeartRateDto implements IHighHeartRateDto {
@@ -1158,6 +1199,102 @@ export interface IPatientDto {
     userLinks?: UserLink[] | undefined;
 }
 
+export class PatientInfoDto implements IPatientInfoDto {
+    id?: number | undefined;
+    userCode?: string | undefined;
+    username!: string;
+    dateOfBirth?: Date | undefined;
+    email!: string;
+    firstName!: string;
+    lastName!: string;
+    heartRates?: HeartRate[] | undefined;
+    suddenMovements?: SuddenMovement[] | undefined;
+    highHeartRates?: HighHeartRate[] | undefined;
+
+    constructor(data?: IPatientInfoDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.userCode = _data["userCode"];
+            this.username = _data["username"];
+            this.dateOfBirth = _data["dateOfBirth"] ? new Date(_data["dateOfBirth"].toString()) : <any>undefined;
+            this.email = _data["email"];
+            this.firstName = _data["firstName"];
+            this.lastName = _data["lastName"];
+            if (Array.isArray(_data["heartRates"])) {
+                this.heartRates = [] as any;
+                for (let item of _data["heartRates"])
+                    this.heartRates!.push(HeartRate.fromJS(item));
+            }
+            if (Array.isArray(_data["suddenMovements"])) {
+                this.suddenMovements = [] as any;
+                for (let item of _data["suddenMovements"])
+                    this.suddenMovements!.push(SuddenMovement.fromJS(item));
+            }
+            if (Array.isArray(_data["highHeartRates"])) {
+                this.highHeartRates = [] as any;
+                for (let item of _data["highHeartRates"])
+                    this.highHeartRates!.push(HighHeartRate.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): PatientInfoDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PatientInfoDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["userCode"] = this.userCode;
+        data["username"] = this.username;
+        data["dateOfBirth"] = this.dateOfBirth ? this.dateOfBirth.toISOString() : <any>undefined;
+        data["email"] = this.email;
+        data["firstName"] = this.firstName;
+        data["lastName"] = this.lastName;
+        if (Array.isArray(this.heartRates)) {
+            data["heartRates"] = [];
+            for (let item of this.heartRates)
+                data["heartRates"].push(item.toJSON());
+        }
+        if (Array.isArray(this.suddenMovements)) {
+            data["suddenMovements"] = [];
+            for (let item of this.suddenMovements)
+                data["suddenMovements"].push(item.toJSON());
+        }
+        if (Array.isArray(this.highHeartRates)) {
+            data["highHeartRates"] = [];
+            for (let item of this.highHeartRates)
+                data["highHeartRates"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IPatientInfoDto {
+    id?: number | undefined;
+    userCode?: string | undefined;
+    username: string;
+    dateOfBirth?: Date | undefined;
+    email: string;
+    firstName: string;
+    lastName: string;
+    heartRates?: HeartRate[] | undefined;
+    suddenMovements?: SuddenMovement[] | undefined;
+    highHeartRates?: HighHeartRate[] | undefined;
+}
+
 export class RegisterDto implements IRegisterDto {
     username!: string;
     password!: string;
@@ -1220,7 +1357,6 @@ export class SuddenMovement implements ISuddenMovement {
     timestamp?: Date | undefined;
     confirm?: boolean | undefined;
     timeOfConfirmation?: Date | undefined;
-    user!: AppUser;
 
     constructor(data?: ISuddenMovement) {
         if (data) {
@@ -1228,9 +1364,6 @@ export class SuddenMovement implements ISuddenMovement {
                 if (data.hasOwnProperty(property))
                     (<any>this)[property] = (<any>data)[property];
             }
-        }
-        if (!data) {
-            this.user = new AppUser();
         }
     }
 
@@ -1241,7 +1374,6 @@ export class SuddenMovement implements ISuddenMovement {
             this.timestamp = _data["timestamp"] ? new Date(_data["timestamp"].toString()) : <any>undefined;
             this.confirm = _data["confirm"];
             this.timeOfConfirmation = _data["timeOfConfirmation"] ? new Date(_data["timeOfConfirmation"].toString()) : <any>undefined;
-            this.user = _data["user"] ? AppUser.fromJS(_data["user"]) : new AppUser();
         }
     }
 
@@ -1259,7 +1391,6 @@ export class SuddenMovement implements ISuddenMovement {
         data["timestamp"] = this.timestamp ? this.timestamp.toISOString() : <any>undefined;
         data["confirm"] = this.confirm;
         data["timeOfConfirmation"] = this.timeOfConfirmation ? this.timeOfConfirmation.toISOString() : <any>undefined;
-        data["user"] = this.user ? this.user.toJSON() : <any>undefined;
         return data;
     }
 }
@@ -1270,7 +1401,6 @@ export interface ISuddenMovement {
     timestamp?: Date | undefined;
     confirm?: boolean | undefined;
     timeOfConfirmation?: Date | undefined;
-    user: AppUser;
 }
 
 export class SuddenMovementDto implements ISuddenMovementDto {

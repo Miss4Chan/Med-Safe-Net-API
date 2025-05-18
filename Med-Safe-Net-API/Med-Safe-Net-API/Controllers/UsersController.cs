@@ -32,11 +32,37 @@ public class UsersController(DataContext context) : BaseApiController
         var user = await context.Users
             .Include(u => u.HighHeartRates)
             .Include(u => u.SuddenMovements)
-            .Include(u => u.HeartRates
-                .Where(hr => hr.Timestamp > DateTime.UtcNow.AddHours(-2)))
+            .Include(u => u.HeartRates)
             .FirstOrDefaultAsync(e => e.Id == id);
         if (user==null) return NotFound();
         return Ok(user);
+    }
+
+    [Authorize(Roles = $"{nameof(AppRoleType.Administrator)},{nameof(AppRoleType.Caregiver)}")]
+    [HttpGet("patient-info/{id:int}")]
+    public async Task<ActionResult<PatientInfoDto>> GetSelectedPatientInfo(int id)
+    {
+        var patient = await context.Users
+            .Include(u => u.HighHeartRates)
+            .Include(u => u.SuddenMovements)
+            .Include(u => u.HeartRates)
+            .FirstOrDefaultAsync(e => e.Id == id);
+        if (patient == null) return NotFound();
+
+        var patientInfoDto = new PatientInfoDto
+        {
+            Id = patient.Id,
+            UserCode = patient.UserCode,
+            Username = patient.Username,
+            DateOfBirth = patient.DateOfBirth,
+            FirstName = patient.FirstName,
+            LastName = patient.LastName,
+            Email = patient.Email,
+            HeartRates = patient.HeartRates,
+            SuddenMovements = patient.SuddenMovements,
+            HighHeartRates = patient.HighHeartRates
+        };
+        return Ok(patientInfoDto);
     }
 
     [Authorize(Roles = $"{nameof(AppRoleType.Administrator)},{nameof(AppRoleType.Caregiver)}")]

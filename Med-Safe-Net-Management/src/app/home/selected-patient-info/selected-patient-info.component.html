@@ -1,0 +1,27 @@
+@if(!!patientInfoDto){
+<div class="dashboard">
+  <h2>{{ patientInfoDto.firstName }} {{ patientInfoDto.lastName }}'s Dashboard</h2>
+
+  <div class="chart-container">
+    <div echarts [options]="heartRateChartOptions" class="chart"></div>
+  </div>
+
+  <div class="warnings">
+    <h3>⚠️ Sudden Movements</h3>
+    <ul *ngIf="patientInfoDto.suddenMovements?.length; else noSudden">
+      <li *ngFor="let move of patientInfoDto.suddenMovements">
+        {{ move.timestamp | date:'short' }} - Detected sudden movement
+      </li>
+    </ul>
+    <ng-template #noSudden><p>No sudden movements recorded.</p></ng-template>
+
+    <h3>❤️‍🔥 High Heart Rates</h3>
+    <ul *ngIf="patientInfoDto.highHeartRates?.length; else noHigh">
+      <li *ngFor="let high of patientInfoDto.highHeartRates">
+        {{ high.timestamp | date:'short' }} - {{ high.measurement }} BPM
+      </li>
+    </ul>
+    <ng-template #noHigh><p>No high heart rates recorded.</p></ng-template>
+  </div>
+</div>
+}

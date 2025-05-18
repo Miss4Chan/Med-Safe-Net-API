@@ -24,6 +24,11 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./home/create-patient-form/create-patient-form.component').then((m) => m.CreatePatientFormComponent),
       },
+      {
+        path: 'patient-info',
+        loadComponent: () =>
+          import('./home/selected-patient-info/selected-patient-info.component').then((m) => m.SelectedPatientInfoComponent),
+      },
     ],
   },
   { path: '**', redirectTo: '', pathMatch: 'full' },

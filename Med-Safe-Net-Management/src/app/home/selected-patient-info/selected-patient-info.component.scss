@@ -1,0 +1,36 @@
+.dashboard {
+  max-width: 800px;
+  margin: auto;
+  padding: 20px;
+}
+
+.chart-container {
+  margin-bottom: 30px;
+}
+
+.chart {
+  height: 400px;
+  width: 100%;
+}
+
+.warnings h3 {
+  color: #d9534f;
+}
+
+ul {
+  list-style-type: '⚠️ ';
+  margin-left: 20px;
+}
+
+.no-data {
+  padding: 1rem;
+  margin: 1rem 0;
+  border-radius: 8px;
+  background-color: #f0f0f0;
+  color: #555;
+  text-align: center;
+  font-weight: 500;
+  border: 1px dashed #ccc;
+}
+
+

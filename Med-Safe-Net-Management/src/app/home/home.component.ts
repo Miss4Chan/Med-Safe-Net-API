@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { AccountService } from '../services/account.service';
 
 @Component({
   selector: 'app-home',
@@ -13,9 +14,10 @@ import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/rou
   styleUrl: './home.component.scss'
 })
 export class HomeComponent {
-constructor(private router: Router) {}
+constructor(private router: Router, private accountService: AccountService) {}
 
   logout() {
+    this.accountService.currentUser.set(null);
     localStorage.removeItem('user');
     this.router.navigate(['/login']);
   }
